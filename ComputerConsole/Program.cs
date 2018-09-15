@@ -10,7 +10,13 @@ namespace ComputerConsole
     {
         static void Main(string[] args)
         {
-            Computer computer = new Computer(3);
+            Computer computer = new Computer();
+            computer.doConsoleInput();
+        }
+
+        static void Test0()
+        {
+            Computer computer = new Computer();
             computer.doStringInput("1 32 1 1 33 -1 2 32 1 2 33 1 4 0 1 1 5 12");
             computer.use();
 

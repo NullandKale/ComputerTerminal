@@ -19,6 +19,12 @@ namespace ComputerConsole
             L1 = new short[L0Size];
         }
 
+        public List<string> HardwareInfo = new List<string>()
+        {
+            "L0 Size: " + L0Size + " words",
+            "L1 Size: " + L1Size + " words",
+        };
+
         public void printL0(int width)
         {
             int height = Console.WindowHeight - 2;

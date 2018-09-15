@@ -9,22 +9,31 @@ namespace ComputerConsole
 {
     public class Cpu
     {
-        public static int registerCount = 8;
-        public int hertz;
+        public static readonly int registerCount = 8;
+        public static readonly int hertz = 10;
         public short[] registers;
         public short programCounter;
         public short currentInstruction;
+        public bool lastAddZero = false;
         public List<short> instructionCache;
 
         public Memory mainMemory;
 
-        public Cpu(Memory mainMemory, int hertz)
+        public List<string> HardwareInfo = new List<string>()
+        {
+            "Processor Version: v0.0.1a",
+            "Instruction Set Version: v0.0.3a",
+            "7 Instructions Loaded",
+            "Processor Register Count: " + registerCount,
+            "Processor Cycle Speed: " + hertz + " hz",
+        };
+
+        public Cpu(Memory mainMemory)
         {
             registers = new short[registerCount];
             instructionCache = new List<short>();
             currentInstruction = 0;
             this.mainMemory = mainMemory;
-            this.hertz = hertz;
             programCounter = 0;
         }
 
@@ -101,6 +110,12 @@ namespace ComputerConsole
                 case instructions.jump:
                     toFetch = 1;
                     break;
+                case instructions.jzr:
+                    toFetch = 1;
+                    break;
+                case instructions.jnz:
+                    toFetch = 1;
+                    break;
             }
 
             instructionCache.Clear();
@@ -130,6 +145,19 @@ namespace ComputerConsole
                     break;
                 case instructions.addR:
                     registers[instructionCache[3]] = (short)((int)registers[instructionCache[1]] + (int)registers[instructionCache[2]]);
+                    lastAddZero = registers[instructionCache[3]] == 0;
+                    break;
+                case instructions.jzr:
+                    if(lastAddZero)
+                    {
+                        programCounter = instructionCache[1];
+                    }
+                    break;
+                case instructions.jnz:
+                    if (!lastAddZero)
+                    {
+                        programCounter = instructionCache[1];
+                    }
                     break;
                 case instructions.jump:
                     programCounter = instructionCache[1];
@@ -158,6 +186,62 @@ namespace ComputerConsole
 
             // 05 00 - Jump Value
             jump = 5,
+
+            // 06 00 - Jump If Last Add Resulted In Zero
+            jzr = 6,
+
+            // 07 00 - Jump If Last Add Did not Result in Zero
+            jnz = 7,
+        }
+
+        public static int instructionsParamsLength(instructions input)
+        {
+            switch (input)
+            {
+                case instructions.halt:
+                    return 0;
+                case instructions.setL0:
+                    return 2;
+                case instructions.readL0:
+                    return 2;
+                case instructions.write:
+                    return 2;
+                case instructions.addR:
+                    return 3;
+                case instructions.jump:
+                    return 1;
+                case instructions.jzr:
+                    return 1;
+                case instructions.jnz:
+                    return 1;
+                default:
+                    return 0;
+            }
+        }
+
+        public static instructions stringToInstructions(string input)
+        {
+            switch(input.ToLower())
+            {
+                case "m_set":
+                    return instructions.setL0;
+                case "m_read":
+                    return instructions.readL0;
+                case "m_write":
+                    return instructions.write;
+                case "add":
+                    return instructions.addR;
+                case "jmp":
+                    return instructions.jump;
+                case "jzr":
+                    return instructions.jzr;
+                case "jnz":
+                    return instructions.jnz;
+                case "halt":
+                    return instructions.halt;
+                default:
+                    return instructions.halt;
+            }
         }
     }
 }
