@@ -9,8 +9,8 @@ namespace ComputerConsole
 {
     public class Cpu
     {
-        public static readonly int registerCount = 8;
-        public static readonly int hertz = 10;
+        public static readonly int registerCount = 16;
+        public static readonly int hertz = -1;
         public short[] registers;
         public short programCounter;
         public short currentInstruction;
@@ -21,11 +21,11 @@ namespace ComputerConsole
 
         public List<string> HardwareInfo = new List<string>()
         {
-            "Processor Version: v0.0.1a",
-            "Instruction Set Version: v0.0.3a",
-            "7 Instructions Loaded",
+            "Processor Version: v0.0.2a",
+            "Instruction Set Version: v0.0.5a",
+            "8 Instructions Loaded",
             "Processor Register Count: " + registerCount,
-            "Processor Cycle Speed: " + hertz + " hz",
+            "Processor Cycle Speed: " + (hertz == -1 ? "1 Khz" : (hertz + " hz")),
         };
 
         public Cpu(Memory mainMemory)
@@ -39,6 +39,7 @@ namespace ComputerConsole
 
         public bool cycle(bool debug)
         {
+            printCPU();
             fetch();
             decode();
             return execute();
@@ -46,24 +47,22 @@ namespace ComputerConsole
 
         public bool toDebugCycle()
         {
-            printCPU();
-            if(hertz != -1)
+            if(hertz == -1)
             {
-                Thread.Sleep((int)((1.0 / hertz) * 1000.0));
+                return cycle(true);
             }
-            fetch();
-            printCPU();
-            if (hertz != -1)
+            else
             {
+                printCPU();
                 Thread.Sleep((int)((1.0 / hertz) * 1000.0));
-            }
-            decode();
-            printCPU();
-            if (hertz != -1)
-            {
+                fetch();
+                printCPU();
                 Thread.Sleep((int)((1.0 / hertz) * 1000.0));
+                decode();
+                printCPU();
+                Thread.Sleep((int)((1.0 / hertz) * 1000.0));
+                return execute();
             }
-            return execute();
         }
 
         public void printCPU()

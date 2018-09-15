@@ -8,8 +8,8 @@ namespace ComputerConsole
 {
     public class Memory
     {
-        public static readonly int L0Size = 1024;
-        public static readonly int L1Size = 1024;
+        public static readonly int L0Size = (1024 * 16);
+        public static readonly int L1Size = (1024 * 16);
         public short[] L0;
         public short[] L1;
 
